@@ -25,7 +25,7 @@ services:
     volumes:
       - ./qr-reader/app:/app
     environment:
-      - ORCHESTRATOR_URL=http://orchestrator:5000
+      - ORCHESTRATOR_URL=http://orchestrator:8888
     depends_on:
       - orchestrator
 
@@ -41,6 +41,7 @@ services:
       - SPOTIFY_REDIRECT_URI=https://stephdiraimondo.freeboxos.fr:4141/callback
       - LIBRESPOT_DEVICE_NAME=JukeboxFreebox
       - TOKEN_STORE=/data/spotify_token.json
+      - CONFIG_STORE=/data/config.json
     expose:
       - "8888"
 
