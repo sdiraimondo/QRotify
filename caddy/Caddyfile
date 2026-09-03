@@ -1,0 +1,8 @@
+stephdiraimondo.freeboxos.fr:443 {
+    reverse_proxy orchestrator:8888
+
+    tls {
+        # Caddy gère automatiquement Let's Encrypt
+        # si le port 80 est bien accessible pour la validation
+    }
+}

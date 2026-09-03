@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  librespot:
+    image: librespot/librespot:latest
+    container_name: librespot
+    restart: unless-stopped
+    devices:
+      - /dev/snd:/dev/snd
+    volumes:
+      - librespot_cache:/data
+    environment:
+      - LIBRESPOT_NAME=JukeboxFreebox
+      - LIBRESPOT_BACKEND=alsa
+      - LIBRESPOT_CACHE=/data
+      - LIBRESPOT_ENABLE_VOLUME_NORMALISATION=true
+      - LIBRESPOT_INITIAL_VOLUME=70
+
+  qr-reader:
+    build: ./qr-reader
+    container_name: qr-reader
+    restart: unless-stopped
+    devices:
+      - /dev/video0:/dev/video0
+    volumes:
+      - ./qr-reader/app:/app
+    environment:
+      - ORCHESTRATOR_URL=http://orchestrator:5000
+    depends_on:
+      - orchestrator
+
+  orchestrator:
+    build: ./orchestrator
+    container_name: orchestrator
+    restart: unless-stopped
+    volumes:
+      - orchestrator_data:/data
+    environment:
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_REDIRECT_URI=https://stephdiraimondo.freeboxos.fr:4141/callback
+      - LIBRESPOT_DEVICE_NAME=JukeboxFreebox
+      - TOKEN_STORE=/data/spotify_token.json
+    expose:
+      - "8888"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "4141:443"
+      - "80:80"   # nécessaire pour validation Let's Encrypt HTTP-01
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - orchestrator
+
+volumes:
+  librespot_cache:
+  orchestrator_data:
+  caddy_data:
+  caddy_config:
