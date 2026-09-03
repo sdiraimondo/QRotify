@@ -69,15 +69,25 @@ def extract_uri(value: str) -> str | None:
 
 
 def find_device_id(client: spotipy.Spotify) -> str | None:
-    """Cherche le device librespot configuré, sans supposer qu'il soit actif."""
+    """Utilise le device configuré via l'UI, sinon fallback sur DEVICE_NAME."""
+    from config_ui import load_config
+    cfg = load_config()
+    configured_id = cfg.get("device_id")
     devices = client.devices().get("devices", [])
+    if configured_id:
+        match = next((d for d in devices if d.get("id") == configured_id), None)
+        if match:
+            LOG.info("Device configuré via UI: %s (%s)", match.get("name"), match.get("id"))
+            return match.get("id")
+        LOG.warning("Device configuré (%s) introuvable dans la liste actuelle", configured_id)
+    # Fallback: recherche par nom (comportement historique)
     expected = DEVICE_NAME.casefold().strip()
     exact = next((d for d in devices if d.get("name", "").casefold() == expected), None)
     candidate = exact or next((d for d in devices if expected in d.get("name", "").casefold()), None)
     if candidate:
-        LOG.info("Device Spotify sélectionné: %s (%s)", candidate.get("name"), candidate.get("id"))
+        LOG.info("Device Spotify sélectionné (fallback nom): %s (%s)", candidate.get("name"), candidate.get("id"))
         return candidate.get("id")
-    LOG.error("Device librespot introuvable (nom configuré: %s); devices: %s", DEVICE_NAME, [d.get("name") for d in devices])
+    LOG.error("Aucun device trouvable; devices disponibles: %s", [d.get("name") for d in devices])
     return None
 
 
