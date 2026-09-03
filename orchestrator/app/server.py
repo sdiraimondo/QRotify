@@ -9,6 +9,10 @@ import spotipy
 from flask import Flask, jsonify, redirect, request
 from spotipy.cache_handler import CacheFileHandler
 from spotipy.oauth2 import SpotifyOAuth
+from config_ui import config_bp
+
+app = Flask(__name__)
+app.register_blueprint(config_bp)
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO").upper(),
