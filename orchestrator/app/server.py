@@ -1,4 +1,3 @@
-"""API Flask QRotify: authentification Spotify et lancement sur librespot."""
 from __future__ import annotations
 
 import logging
@@ -19,7 +18,6 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s [orchestrator] %(message)s",
 )
 LOG = logging.getLogger("qrotify.orchestrator")
-app = Flask(__name__)
 
 CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID", "")
 CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", "")
