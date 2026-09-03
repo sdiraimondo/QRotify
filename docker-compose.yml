@@ -2,19 +2,20 @@ version: "3.8"
 
 services:
   librespot:
-    image: xanguera/librespot
+    build: ./librespot
     container_name: librespot
     restart: unless-stopped
     devices:
       - /dev/snd:/dev/snd
     volumes:
       - librespot_cache:/data
-    environment:
-      - LIBRESPOT_NAME=JukeboxFreebox
-      - LIBRESPOT_BACKEND=alsa
-      - LIBRESPOT_CACHE=/data
-      - LIBRESPOT_ENABLE_VOLUME_NORMALISATION=true
-      - LIBRESPOT_INITIAL_VOLUME=70
+    command:
+      - "--name=JukeboxFreebox"
+      - "--backend=alsa"
+      - "--cache=/data"
+      - "--enable-volume-normalisation"
+      - "--initial-volume=70"
+      - "--bitrate=320"
 
   qr-reader:
     build: ./qr-reader
